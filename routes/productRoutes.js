@@ -154,4 +154,157 @@ router.delete(
   })
 );
 
+// @route GET /api/products
+// @desc Get all products with optional query filters
+// @access Public
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const {
+      collection,
+      category,
+      material,
+      brand,
+      size,
+      color,
+      gender,
+      minPrice,
+      maxPrice,
+      sortBy,
+      search,
+      limit,
+    } = req.query;
+
+    let query = {};
+
+    // Filter logic
+    if (collection && collection.toLowerCase() !== "all") {
+      query.collections = collection;
+    }
+
+    if (category && category.toLowerCase() !== "all") {
+      query.category = category;
+    }
+
+    if (material) {
+      query.material = { $in: material.split(",") };
+    }
+    if (brand) {
+      query.brand = { $in: brand.split(",") };
+    }
+    if (size) {
+      query.sizes = { $in: size.split(",") };
+    }
+
+    if (color) {
+      query.colors = { $in: [color] };
+    }
+
+    if (gender) {
+      query.gender = gender;
+    }
+
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = minPrice;
+      if (maxPrice) query.price.$lte = maxPrice;
+    }
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Sorting logic
+    let sort = {};
+
+    if (sortBy) {
+      if (sortBy === "priceAsc") {
+        sort.price = 1;
+      } else if (sortBy === "priceDesc") {
+        sort.price = -1;
+      } else if (sortBy === "popularity") {
+        sort.rating = -1;
+      }
+    }
+
+    // Fetch products and apply sorting and limit
+    let products = await Product.find(query).sort(sort).limit(limit);
+
+    res.json(products);
+  })
+);
+
+// @route GET /api/products/best-seller
+//@desc Retrieve the product with highest rating
+// @access Public
+router.get(
+  "/best-seller",
+  asyncHandler(async (req, res) => {
+    const bestSeller = await Product.findOne().sort({ rating: -1 });
+
+    if (!bestSeller) {
+      return res.status(404).json({ message: "No best seller found" });
+    }
+
+    res.json(bestSeller);
+  })
+);
+
+// @route GET /api/products/new-arrivals
+// @desc Retrieve the latest 8 products - creation date
+// @access Public
+router.get(
+  "/new-arrivals",
+  asyncHandler(async (req, res) => {
+    // Fetch the latest 8 products based on creation date
+    const newArrivals = await Product.find().sort({ createdAt: -1 }).limit(8);
+
+    res.json(newArrivals);
+  })
+);
+
+// @route GET /api/products/:id
+// @desc Get a single product by ID
+// @access Public
+router.get(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json(product);
+  })
+);
+
+// @route GET /api/products/similar/:id
+// @desc Get similar products based on category and gender
+// @access Public
+router.get(
+  "/similar/:id",
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const similarProducts = await Product.find({
+      _id: { $ne: id },
+      category: product.category,
+      gender: product.gender,
+    }).limit(4);
+
+    res.json(similarProducts);
+  })
+);
+
 module.exports = router;
