@@ -58,6 +58,7 @@ route.put(
       checkout.isPaid = true;
       checkout.paymentStatus = paymentStatus;
       checkout.paymentDetails = paymentDetails;
+      checkout.paidAt = Date.now();
       await checkout.save();
 
       res.status(200).json(checkout);
@@ -87,7 +88,7 @@ route.post(
       // create final order based on the checkout session
       const finalOrder = await Order.create({
         user: checkout.user,
-        orderItems: checkout.orderItems,
+        orderItems: checkout.checkoutItems,
         shippingAddress: checkout.shippingAddress,
         paymentMethod: checkout.paymentMethod,
         totalPrice: checkout.totalPrice,
