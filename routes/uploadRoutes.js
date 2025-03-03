@@ -43,5 +43,11 @@ router.post(
         streamifier.createReadStream(fileBuffer).pipe(stream);
       });
     };
+
+    // call the stream upload function
+    const result = await streamUpload(req.file.buffer);
+    res.json({ imageUrl: result.secure_url });
   })
 );
+
+module.exports = router;
