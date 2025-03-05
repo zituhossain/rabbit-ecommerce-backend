@@ -18,11 +18,11 @@ const products = [
     gender: "Men",
     images: [
       {
-        url: "https://picsum.photos/500/500?random=39",
+        url: "https://images.pexels.com/photos/9912159/pexels-photo-9912159.jpeg?auto=compress&cs=tinysrgb&w=600",
         altText: "Classic Oxford Button-Down Shirt Front View",
       },
       {
-        url: "https://picsum.photos/500/500?random=40",
+        url: "https://images.pexels.com/photos/9912159/pexels-photo-9912159.jpeg?auto=compress&cs=tinysrgb&w=600",
         altText: "Classic Oxford Button-Down Shirt Back View",
       },
     ],
@@ -906,7 +906,7 @@ const products = [
     gender: "Women",
     images: [
       {
-        url: "https://picsum.photos/500/500?random=35",
+        url: "https://images.pexels.com/photos/9912159/pexels-photo-9912159.jpeg?auto=compress&cs=tinysrgb&w=600",
         altText: "Ribbed Long-Sleeve Top",
       },
     ],
